@@ -33,5 +33,8 @@ connectDB()
   });
 
 // Import routes
+app.use("/",(req,res) =>{
+  res.send("Hello there")
+})
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/todo", todoRouter);
