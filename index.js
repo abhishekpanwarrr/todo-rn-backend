@@ -10,16 +10,15 @@ const app = express();
 dotenv.config({
   path: "./.env",
 });
-
+app.use(express.json());
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
 connectDB()
   .then(() => {
