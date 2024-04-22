@@ -26,34 +26,57 @@ const register = async (req, res) => {
   }
 };
 
+// const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+//     const isPasswordValid = await bcrypt.compare(password, user?.password);
+
+//     if (!isPasswordValid) {
+//       return res.status(401).json({ msg: "Invalid password" });
+//     }
+//     const tokenPayload = {
+//       userId: user._id,
+//       name: user.name,
+//       email: user.email,
+//     };
+
+//     const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, {
+//       expiresIn: "1w",
+//     });
+//     res
+//       .status(200)
+//       .json({ msg: "Login successful", token, user: tokenPayload });
+//   } catch (error) {
+//     console.log("🚀 ~ login ~ error:", error);
+//     res.status(500).json({ msg: "Error in login user" });
+//   }
+// };
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(400).json({ status: 400, msg: "User does not exist" });
     }
-    const isPasswordValid = await bcrypt.compare(password, user?.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ msg: "Invalid password" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ status: 400, msg: "Invalid credentials" });
     }
-    const tokenPayload = {
-      userId: user._id,
-      name: user.name,
-      email: user.email,
-    };
+    const userWithoutPassword = { ...user._doc };
+    delete userWithoutPassword.password;
+    const token = jwt.sign(
+      { userId: user?._id, email: user?.email, name: user?.name },
+      process.env.ACCESS_TOKEN_SECRET
+    );
 
-    const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "1w",
-    });
-    res
-      .status(200)
-      .json({ msg: "Login successful", token, user: tokenPayload });
+    res.status(200).json({ status: 200, token, user: userWithoutPassword });
   } catch (error) {
-    console.log("🚀 ~ login ~ error:", error);
-    res.status(500).json({ msg: "Error in login user" });
+    res.status(500).json({ error: error.message });
   }
 };
-
 export { register, login };
