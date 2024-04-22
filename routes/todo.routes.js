@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/:userId", createUserTodo);
 router.get("/:userId/todos", getAllUserTodos);
 router.patch("/:todoId/complete", patchTodo);
-router.get("/todos/complete/:date", getTodosDate);
+router.get("/todos/completed/:date", getTodosDate);
 router.get("/todos/count", getTodosCount);
 
 export default router;
